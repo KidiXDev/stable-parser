@@ -1,6 +1,7 @@
 # Stable Parser
 
 ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)
+[![GitHub downloads count total](https://img.shields.io/github/downloads/KidiXDev/stable-parser/total.svg?logo=github)](https://github.com/KidiXDev/stable-parser/releases)
 
 An Electron application for parsing and extracting metadata from StableDiffusion AI-generated images, built with React and TypeScript.
 
