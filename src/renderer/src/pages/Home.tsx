@@ -1,35 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { version } from '../../../../package.json'
 import TitleBar from '../components/TitleBar'
 import DropZone from '../components/DropZone'
 import MetadataViewer from '../components/MetadataViewer'
 import LoadingSpinner from '../components/LoadingSpinner'
-
-type ParserType = 'a1111' | 'comfyui' | 'unknown'
-
-interface ParseImageResult {
-  success: boolean
-  metadata?: {
-    prompt: string
-    negativePrompt: string
-    samplingMethod: string
-    scheduler: string
-    cfgScale: string
-    steps: string
-    seed: string
-    model: string
-    resolution: string
-    otherParams: Record<string, string>
-  }
-  imageInfo?: {
-    width: number
-    height: number
-    format: string
-    size: number
-  }
-  filename?: string
-  parserType?: ParserType
-  error?: string
-}
 
 const Home: React.FC = () => {
   const [parseResult, setParseResult] = useState<ParseImageResult | null>(null)
@@ -132,7 +106,7 @@ const Home: React.FC = () => {
 
       {/* Footer */}
       <footer className="p-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between">
-        <span>StableParser v1.0</span>
+        <span>StableParser v{version}</span>
         <a
           href="#"
           className="text-indigo-400 hover:text-indigo-300 transition-colors"

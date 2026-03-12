@@ -1,27 +1,5 @@
 import React, { useState } from 'react'
 
-type ParserType = 'a1111' | 'comfyui' | 'unknown'
-
-interface ImageMetadata {
-  prompt: string
-  negativePrompt: string
-  samplingMethod: string
-  scheduler: string
-  cfgScale: string
-  steps: string
-  seed: string
-  model: string
-  resolution: string
-  otherParams: Record<string, string>
-}
-
-interface ImageInfo {
-  width: number
-  height: number
-  format: string
-  size: number
-}
-
 interface MetadataViewerProps {
   metadata: ImageMetadata | null
   imageInfo?: ImageInfo
