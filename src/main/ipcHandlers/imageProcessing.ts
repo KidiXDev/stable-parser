@@ -1,11 +1,15 @@
 import { IpcMain } from 'electron'
 import sharp from 'sharp'
 import ExifReader from 'exifreader'
-import { extractA1111Parameters } from './utils/parser'
+import { extractA1111Parameters } from './utils/a1111-parser'
+import { extractComfyUIParameters, isComfyUIWorkflow } from './utils/comfyui-parser'
+import { ExifTag, ImageParameters } from './utils/types'
+
+export type ParserType = 'a1111' | 'comfyui' | 'unknown'
 
 export interface ImageProcessingResult {
   success: boolean
-  metadata?: ReturnType<typeof extractA1111Parameters>
+  metadata?: ImageParameters
   imageInfo?: {
     width: number
     height: number
@@ -13,6 +17,7 @@ export interface ImageProcessingResult {
     size: number
   }
   filename?: string
+  parserType?: ParserType
   error?: string
 }
 
@@ -21,63 +26,68 @@ export function registerImageProcessingHandlers(ipcMain: IpcMain): void {
     'parse-image',
     async (_event, { buffer, filename }): Promise<ImageProcessingResult> => {
       try {
-        // Use the provided buffer to create a proper Node.js Buffer
         const imageBuffer = Buffer.from(buffer)
 
-        console.log('Received image buffer of size:', imageBuffer.length)
-
-        // Get basic image info using Sharp
-        let imageInfo
+        // Get basic image dimensions / format
+        let imageInfo: sharp.Metadata
         try {
           imageInfo = await sharp(imageBuffer).metadata()
-          console.log('Sharp metadata:', imageInfo)
-        } catch (error) {
-          console.error('Error getting image metadata:', error)
+        } catch {
           return {
             success: false,
             error: 'Failed to process image. The file might be corrupted.'
           }
         }
 
-        // Extract EXIF data (which may contain A1111 parameters)
-        let tags
+        // Extract all EXIF / PNG text tags into a flat lookup map
+        let tags: Record<string, ExifTag>
         try {
-          tags = ExifReader.load(imageBuffer, { expanded: true })
-          console.log('Found tags:', Object.keys(tags))
-        } catch (error) {
-          console.error('Error extracting EXIF data:', error)
+          const rawTags = ExifReader.load(imageBuffer)
+          // ExifReader's flat Tags type is a complex intersection – cast via unknown to the
+          // simpler Record<string, ExifTag> shape that both parsers expect.
+          tags = Object.fromEntries(
+            Object.entries(rawTags).filter(([, v]) => v !== null && typeof v === 'object')
+          ) as unknown as Record<string, ExifTag>
+        } catch {
           return {
             success: false,
-            error: 'No metadata found in the image. Is this an A1111 generated image?'
+            error: 'No metadata found in the image. Is this an AI-generated image?'
           }
         }
 
-        // Handle PNG text chunks which might contain parameters (common in PNG saved from A1111)
-        if (tags.pngText && Array.isArray(imageInfo.comments)) {
-          console.log('Found PNG text chunks:', imageInfo.comments)
-
-          // Look for parameters in PNG text chunks
-          const parametersChunk = imageInfo.comments.find((chunk) => chunk.keyword === 'parameters')
-          if (parametersChunk && parametersChunk.text) {
-            console.log('Found parameters text chunk:', parametersChunk.text)
-            // Store this in tags so our extraction function can process it
-            tags.parameters = { description: parametersChunk.text }
+        // Promote PNG text chunks (from Sharp) into the tag map
+        if (Array.isArray(imageInfo.comments)) {
+          for (const chunk of imageInfo.comments) {
+            if (chunk.keyword && chunk.text) {
+              tags[chunk.keyword] = { description: chunk.text }
+            }
           }
         }
 
-        // Extract A1111 metadata
-        const parameters = extractA1111Parameters(tags)
+        // --- Format detection and parsing ---
+        let parameters: ImageParameters
+        let parserType: ParserType = 'unknown'
+
+        const promptChunk = tags['prompt']?.description
+        if (promptChunk && isComfyUIWorkflow(promptChunk)) {
+          parameters = extractComfyUIParameters(promptChunk)
+          parserType = 'comfyui'
+        } else {
+          parameters = extractA1111Parameters(tags)
+          parserType = 'a1111'
+        }
 
         return {
           success: true,
           metadata: parameters,
           imageInfo: {
-            width: imageInfo.width,
-            height: imageInfo.height,
-            format: imageInfo.format,
+            width: imageInfo.width ?? 0,
+            height: imageInfo.height ?? 0,
+            format: imageInfo.format ?? '',
             size: buffer.byteLength
           },
-          filename: filename
+          filename,
+          parserType
         }
       } catch (error: unknown) {
         console.error('Error parsing image:', error)

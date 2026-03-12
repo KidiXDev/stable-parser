@@ -21,11 +21,14 @@ interface ImageInfo {
   size: number
 }
 
+type ParserType = 'a1111' | 'comfyui' | 'unknown'
+
 interface ParseImageResult {
   success: boolean
   metadata?: ImageMetadata
   imageInfo?: ImageInfo
   filename?: string
+  parserType?: ParserType
   error?: string
 }
 
@@ -38,6 +41,7 @@ declare global {
         maximize: () => void
         close: () => void
       }
+      openExternal: (url: string) => void
       parseImage: (imageBuffer: ArrayBuffer, filename: string) => Promise<ParseImageResult>
     }
   }

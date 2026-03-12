@@ -4,6 +4,8 @@ import DropZone from '../components/DropZone'
 import MetadataViewer from '../components/MetadataViewer'
 import LoadingSpinner from '../components/LoadingSpinner'
 
+type ParserType = 'a1111' | 'comfyui' | 'unknown'
+
 interface ParseImageResult {
   success: boolean
   metadata?: {
@@ -25,6 +27,7 @@ interface ParseImageResult {
     size: number
   }
   filename?: string
+  parserType?: ParserType
   error?: string
 }
 
@@ -54,7 +57,6 @@ const Home: React.FC = () => {
     // Create object URL for preview only (before reading file)
     const objectUrl = URL.createObjectURL(file)
     setPreviewUrl(objectUrl)
-    console.log('Preview URL:', objectUrl)
 
     try {
       const buffer = await file.arrayBuffer()
@@ -84,7 +86,9 @@ const Home: React.FC = () => {
 
       <main className="flex flex-col flex-1 p-6 overflow-hidden">
         <h1 className="text-3xl font-semibold mb-1">Stable Parser</h1>
-        <p className="text-gray-400 mb-8">Extract metadata from A1111 generated images</p>
+        <p className="text-gray-400 mb-8">
+          Extract metadata from AI-generated images (A1111 &amp; ComfyUI)
+        </p>
 
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-auto">
           {/* Left side - Drop Zone */}
@@ -119,6 +123,7 @@ const Home: React.FC = () => {
                 metadata={parseResult.metadata}
                 imageInfo={parseResult.imageInfo}
                 filename={parseResult.filename}
+                parserType={parseResult.parserType}
               />
             )}
           </div>
