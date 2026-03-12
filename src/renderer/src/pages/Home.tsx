@@ -1,32 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { version } from '../../../../package.json'
 import TitleBar from '../components/TitleBar'
 import DropZone from '../components/DropZone'
 import MetadataViewer from '../components/MetadataViewer'
 import LoadingSpinner from '../components/LoadingSpinner'
-
-interface ParseImageResult {
-  success: boolean
-  metadata?: {
-    prompt: string
-    negativePrompt: string
-    samplingMethod: string
-    scheduler: string
-    cfgScale: string
-    steps: string
-    seed: string
-    model: string
-    resolution: string
-    otherParams: Record<string, string>
-  }
-  imageInfo?: {
-    width: number
-    height: number
-    format: string
-    size: number
-  }
-  filename?: string
-  error?: string
-}
 
 const Home: React.FC = () => {
   const [parseResult, setParseResult] = useState<ParseImageResult | null>(null)
@@ -54,7 +31,6 @@ const Home: React.FC = () => {
     // Create object URL for preview only (before reading file)
     const objectUrl = URL.createObjectURL(file)
     setPreviewUrl(objectUrl)
-    console.log('Preview URL:', objectUrl)
 
     try {
       const buffer = await file.arrayBuffer()
@@ -84,7 +60,9 @@ const Home: React.FC = () => {
 
       <main className="flex flex-col flex-1 p-6 overflow-hidden">
         <h1 className="text-3xl font-semibold mb-1">Stable Parser</h1>
-        <p className="text-gray-400 mb-8">Extract metadata from A1111 generated images</p>
+        <p className="text-gray-400 mb-8">
+          Extract metadata from AI-generated images (A1111 &amp; ComfyUI)
+        </p>
 
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-auto">
           {/* Left side - Drop Zone */}
@@ -119,6 +97,7 @@ const Home: React.FC = () => {
                 metadata={parseResult.metadata}
                 imageInfo={parseResult.imageInfo}
                 filename={parseResult.filename}
+                parserType={parseResult.parserType}
               />
             )}
           </div>
@@ -127,7 +106,7 @@ const Home: React.FC = () => {
 
       {/* Footer */}
       <footer className="p-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between">
-        <span>StableParser v1.0</span>
+        <span>StableParser v{version}</span>
         <a
           href="#"
           className="text-indigo-400 hover:text-indigo-300 transition-colors"

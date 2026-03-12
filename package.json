@@ -1,6 +1,6 @@
 {
   "name": "stable-parser",
-  "version": "1.0.0",
+  "version": "1.1.7",
   "description": "Stable Parser",
   "main": "./out/main/main.js",
   "author": "KidiXDev",

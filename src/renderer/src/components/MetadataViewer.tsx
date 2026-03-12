@@ -1,32 +1,24 @@
 import React, { useState } from 'react'
 
-interface ImageMetadata {
-  prompt: string
-  negativePrompt: string
-  samplingMethod: string
-  scheduler: string
-  cfgScale: string
-  steps: string
-  seed: string
-  model: string
-  resolution: string
-  otherParams: Record<string, string>
-}
-
-interface ImageInfo {
-  width: number
-  height: number
-  format: string
-  size: number
-}
-
 interface MetadataViewerProps {
   metadata: ImageMetadata | null
   imageInfo?: ImageInfo
   filename?: string
+  parserType?: ParserType
 }
 
-const MetadataViewer: React.FC<MetadataViewerProps> = ({ metadata, imageInfo, filename }) => {
+const PARSER_LABELS: Record<ParserType, string> = {
+  a1111: 'Stable Diffusion WebUI (A1111)',
+  comfyui: 'ComfyUI',
+  unknown: 'Unknown'
+}
+
+const MetadataViewer: React.FC<MetadataViewerProps> = ({
+  metadata,
+  imageInfo,
+  filename,
+  parserType
+}) => {
   const [promptCopied, setPromptCopied] = useState(false)
   const [negativePromptCopied, setNegativePromptCopied] = useState(false)
 
@@ -47,7 +39,14 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ metadata, imageInfo, fi
       {imageInfo && (
         <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
           <div>{filename}</div>
-          <div>{`${imageInfo.width} × ${imageInfo.height} • ${imageInfo.format.toUpperCase()}`}</div>
+          <div className="flex items-center gap-3">
+            {parserType && parserType !== 'unknown' && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-900/50 border border-indigo-700 text-indigo-300">
+                {PARSER_LABELS[parserType]}
+              </span>
+            )}
+            <span>{`${imageInfo.width} × ${imageInfo.height} • ${imageInfo.format.toUpperCase()}`}</span>
+          </div>
         </div>
       )}
 

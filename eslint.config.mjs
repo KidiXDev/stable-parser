@@ -1,5 +1,5 @@
 import tseslint from '@electron-toolkit/eslint-config-ts'
-import eslintConfigPrettier from '@electron-toolkit/eslint-config-prettier'
+import parserTypeScript from '@typescript-eslint/parser'
 import eslintPluginReact from 'eslint-plugin-react'
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
 import eslintPluginReactRefresh from 'eslint-plugin-react-refresh'
@@ -25,13 +25,37 @@ export default tseslint.config(
     rules: {
       ...eslintPluginReactHooks.configs.recommended.rules,
       ...eslintPluginReactRefresh.configs.vite.rules,
-      'prettier/prettier': [
+      'linebreak-style': 0,
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'react-refresh/only-export-components': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_'
+        }
+      ],
+      'prettier/prettier': 'off',
+      'no-empty-function': 'off',
+      '@typescript-eslint/no-empty-function': [
         'error',
         {
-          endOfLine: 'auto'
+          allow: ['private-constructors']
         }
       ]
     }
   },
-  eslintConfigPrettier
+  {
+    files: ['*.ts', '*.tsx'],
+    languageOptions: {
+      parser: parserTypeScript
+    }
+  },
+  {
+    files: ['src/renderer/src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react/prop-types': 'off'
+    }
+  }
 )

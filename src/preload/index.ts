@@ -1,7 +1,37 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
+export interface ImageMetadata {
+  prompt: string
+  negativePrompt: string
+  samplingMethod: string
+  scheduler: string
+  cfgScale: string
+  steps: string
+  seed: string
+  model: string
+  resolution: string
+  otherParams: Record<string, string>
+}
+
+export interface ImageInfo {
+  width: number
+  height: number
+  format: string
+  size: number
+}
+
+export type ParserType = 'a1111' | 'comfyui' | 'unknown'
+
+export interface ParseImageResult {
+  success: boolean
+  metadata?: ImageMetadata
+  imageInfo?: ImageInfo
+  filename?: string
+  parserType?: ParserType
+  error?: string
+}
+
 const api = {
   // Window control
   window: {
@@ -11,7 +41,7 @@ const api = {
   },
   openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   // Image processing
-  parseImage: (imageBuffer: ArrayBuffer, filename: string) =>
+  parseImage: (imageBuffer: ArrayBuffer, filename: string): Promise<ParseImageResult> =>
     ipcRenderer.invoke('parse-image', { buffer: imageBuffer, filename })
 }
 
