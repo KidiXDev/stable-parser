@@ -2,6 +2,9 @@
 
 ![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)
 [![GitHub downloads count total](https://img.shields.io/github/downloads/KidiXDev/stable-parser/total.svg?logo=github)](https://github.com/KidiXDev/stable-parser/releases)
+![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white)
+![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)
 
 An Electron application for parsing and extracting metadata from AI-generated images, built with React and TypeScript.
 
@@ -16,6 +19,16 @@ An Electron application for parsing and extracting metadata from AI-generated im
 - 📋 **Copy to Clipboard**: Easily copy prompts and parameters with a single click.
 - 📊 **Image Information**: View detailed image information including resolution, format and size.
 - 🎨 **Modern UI**: Clean, responsive interface.
+
+## Download
+
+Pre-built binaries for Windows, macOS, and Linux are available on the [Releases](https://github.com/KidiXDev/stable-parser/releases) page.
+
+| Platform | Format |
+|----------|--------|
+| Windows  | `.exe` installer (NSIS) |
+| macOS    | `.dmg` disk image |
+| Linux    | `.AppImage`, `.deb` |
 
 ## Installation
 
